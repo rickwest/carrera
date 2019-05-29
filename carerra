@@ -1,3 +1,311 @@
 #!/usr/bin/env bash
 
-echo Welcome to Carerra, turbo-charged symfony new!
+## Set up colors
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+orange=$(tput setaf 3)
+reset=$(tput sgr0)
+
+## Terminal Editors
+TERMINAL_EDITORS=("vim" "vi" "nano" "pico" "ed" "emacs" "nvim")
+
+## Init functions
+showhelp()
+{
+    echo " "
+    echo "${green}Carerra: Turbo-charged '${orange}symfony new${green}'"
+    echo "${reset}________________________________________________________"
+    echo " "
+    echo "${orange}Usage:"
+    echo "${reset}  carerra myApplication [arguments]"
+    echo " "
+    echo "${orange}Commands (carerra COMMANDNAME):"
+    echo " "
+    echo "${green}   make-config${reset}                  Generate config file"
+    echo "${green}   edit-config${reset}                  Edit config file"
+    echo " "
+    echo "${green}   make-after${reset}                   Generate after file"
+    echo "${green}   edit-after${reset}                   Edit after file"
+    echo " "
+    echo "${orange}Options (carerra myApplication OPTIONS):"
+    echo "${green}  -h, --help${reset}                    Show brief help"
+    echo "${green}  -e, --editor EDITOR${reset}           Specify an editor to run '${green}EDITOR .${reset}' with after"
+    echo "${green}  -m, --message \"message\"${reset}       Customize the initial commit message"
+    echo "${green}  -p, --path PATH${reset}               Customize the path in which the new project will be created"
+    echo "${green}  -d, --dev${reset}                     Create a new project based on the development version of Symfony's master branch"
+    quit
+}
+
+isterminaleditor () {
+    for EDITOR in $TERMINAL_EDITORS; do [[ "$EDITOR" == "$CODEEDITOR" ]] && return 0; done
+    return 1
+}
+
+editconfig()
+{
+    if [[ ! -f ~/.carerra/config ]]; then
+        echo "Config does not exist; creating."
+
+        makeconfig
+        return
+    fi
+
+    edit ~/.carerra/config
+}
+
+makeconfig()
+{
+    if [[ -f ~/.carerra/config ]]; then
+        echo "Config already exists."
+        quit
+    fi
+
+    if [[ ! -d ~/.carerra ]]; then
+      mkdir ~/.carerra
+    fi
+
+    echo '#!/usr/bin/env bash
+PROJECTPATH="."
+MESSAGE="Initial commit."
+DEVELOP=false
+CODEEDITOR=""' > ~/.carerra/config
+
+    edit ~/.carerra/config
+}
+
+editafter()
+{
+    if [[ ! -f ~/.carerra/after ]]; then
+        echo "after file does not exist; creating."
+
+        makeafter
+        return
+    fi
+
+    edit ~/.carerra/after
+}
+
+makeafter()
+{
+    if [[ -f ~/.carerra/after ]]; then
+        echo "after file already exists."
+        quit
+    fi
+
+    if [[ ! -d ~/.carerra ]]; then
+      mkdir ~/.carerra
+    fi
+
+    echo '#!/usr/bin/env bash
+# Install additional composer dependencies as you would from the command line.
+# echo "
+# Installing Composer Dependencies
+# "
+# composer require orm
+# To copy standard files to new carerra project place them in ~/.carerra/includes directory.
+# echo "
+# Copying Include Files
+# "
+# cp -R ~/.carerra/includes/ $PROJECTPATH
+# To add a git commit after given modifications
+# echo "
+# Committing after modifications to Git
+# "
+# git add .
+# git commit -am "Initialize Composer dependencies and additional files."
+' > ~/.carerra/after
+
+    edit ~/.carerra/after
+}
+
+edit()
+{
+    ## Open with best editor
+    if [[ $CODEEDITOR ]]; then
+        $CODEEDITOR $1
+    elif [[ $EDITOR ]]; then
+        $EDITOR $1
+    else
+        vim $1
+    fi
+}
+
+abort()
+{
+    echo >&2 '
+***********************************************
+*** There was an error running this script. ***
+***********************************************
+'
+    echo "An error occurred. Exiting..." >&2
+    exit 1
+}
+
+quit()
+{
+    trap : 0
+    exit 0
+}
+
+
+
+## Set up error handling
+trap 'abort' 0
+
+# Start script
+
+PROJECTNAME=$1
+PROJECTPATH="."
+MESSAGE="Initial commit."
+DEVELOP=false
+CODEEDITOR=""
+
+# Load config if it exists
+if [[ -f ~/.carerra/config ]]; then
+    source ~/.carerra/config
+fi
+
+# Check for project name argument; if none passed, show help
+if [[ $# -eq 0 ]]; then
+    showhelp
+fi
+
+# Check if user wants to set up a config file.
+if [[ $1 == "make-config" ]]; then
+    makeconfig
+    quit
+fi
+
+if [[ $1 == "edit-config" ]]; then
+    editconfig
+    quit
+fi
+
+# Check if user wants to set up a after file.
+if [[ $1 == "make-after" ]]; then
+    makeafter
+    quit
+fi
+
+if [[ $1 == "edit-after" ]]; then
+    editafter
+    quit
+fi
+
+# Handle arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+
+    case $key in
+        -h|--help)
+            showhelp
+            ;;
+        -p|--path)
+            PROJECTPATH="$2"
+            shift
+            ;;
+        -m|--message)
+            MESSAGE="$2"
+            shift
+            ;;
+        -e|--editor)
+            CODEEDITOR="$2"
+            shift
+            ;;
+        -d|--develop|--dev)
+            DEVELOP=true
+            ;;
+        *)
+            ;;
+    esac
+
+    shift
+done
+
+
+if [ -d "$PROJECTPATH/$PROJECTNAME" ]; then
+  echo "${red}Project directory $PROJECTPATH/$PROJECTNAME already exists.${reset}"
+  quit
+fi
+
+if ! hash php 2>/dev/null; then
+  echo "${red}PHP is not installed.${reset}"
+  quit
+fi
+
+if ! hash symfony 2>/dev/null; then
+  echo "${red}Symfony cli not installed.${reset}"
+  quit
+fi
+
+if ! hash git 2>/dev/null; then
+  echo "${red}Git not installed.${reset}"
+  quit
+fi
+
+cd "$PROJECTPATH" || exit
+
+echo "
+***********************************************
+3,2,1 … and we’re off! Creating new Symfony app ${green}$PROJECTNAME${reset}
+***********************************************
+"
+
+if [[ "$DEVELOP" = true ]]; then
+    symfony new --version=dev-master "$PROJECTNAME"
+else
+    symfony new --full "$PROJECTNAME"
+fi
+
+cd "$PROJECTNAME" || exit
+
+if [[ "$CODEEDITOR" != "" ]]; then
+    if ! isterminaleditor; then
+       $CODEEDITOR .
+   fi
+fi
+
+git add .
+git commit -m "$MESSAGE"
+
+# Start server in the background
+symfony server:start -d --no-tls
+
+# Open project in a browser
+symfony open:local
+
+case $PROJECTPATH in
+ ".") prettyPath="$PROJECTNAME" ;;
+ *) prettyPath="$PROJECTPATH/$PROJECTNAME" ;;
+esac
+
+### Load after file if it exists
+if [[ -f ~/.carerra/after ]]; then
+    echo "
+${green}Running additional commands...${reset}
+    "
+    source ~/.carerra/after
+fi
+
+if [[ "$CODEEDITOR" != "" ]]; then
+    if isterminaleditor; then
+       $CODEEDITOR .
+   fi
+fi
+
+if [[ "$SHELL" != "" ]]; then
+    exec "$SHELL"
+
+    echo "
+***********************************************
+You're ready to go!
+"
+else
+    echo "
+***********************************************
+You're ready to go! Remember to cd into '${green}$prettyPath${reset}' before you start editing."
+fi
+
+
+# End script; disable error handling
+trap : 0
