@@ -8,5 +8,8 @@
             "email": "rickwestdev@gmail.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "bin": [
+        "carerra"
+    ]
 }
