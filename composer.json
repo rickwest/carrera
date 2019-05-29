@@ -1,0 +1,12 @@
+{
+    "name": "rickwest/carerra",
+    "description": "Turbo-charged 'symfony new'.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "rick",
+            "email": "rickwestdev@gmail.com"
+        }
+    ],
+    "require": {}
+}
