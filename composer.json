@@ -1,5 +1,5 @@
 {
-    "name": "rickwest/carerra",
+    "name": "rickwest/carrera",
     "description": "Turbo-charged 'symfony new'.",
     "license": "MIT",
     "authors": [
@@ -10,6 +10,6 @@
     ],
     "require": {},
     "bin": [
-        "carerra"
+        "carrera"
     ]
 }

@@ -13,13 +13,13 @@ TERMINAL_EDITORS=("vim" "vi" "nano" "pico" "ed" "emacs" "nvim")
 showhelp()
 {
     echo " "
-    echo "${green}Carerra: Turbo-charged '${orange}symfony new${green}'"
+    echo "${green}Carrera: Turbo-charged '${orange}symfony new${green}'"
     echo "${reset}________________________________________________________"
     echo " "
     echo "${orange}Usage:"
-    echo "${reset}  carerra myApplication [arguments]"
+    echo "${reset}  carrera myApplication [arguments]"
     echo " "
-    echo "${orange}Commands (carerra COMMANDNAME):"
+    echo "${orange}Commands (carrera COMMANDNAME):"
     echo " "
     echo "${green}   make-config${reset}                  Generate config file"
     echo "${green}   edit-config${reset}                  Edit config file"
@@ -27,7 +27,7 @@ showhelp()
     echo "${green}   make-after${reset}                   Generate after file"
     echo "${green}   edit-after${reset}                   Edit after file"
     echo " "
-    echo "${orange}Options (carerra myApplication OPTIONS):"
+    echo "${orange}Options (carrera myApplication OPTIONS):"
     echo "${green}  -h, --help${reset}                    Show brief help"
     echo "${green}  -e, --editor EDITOR${reset}           Specify an editor to run '${green}EDITOR .${reset}' with after"
     echo "${green}  -m, --message \"message\"${reset}       Customize the initial commit message"
@@ -43,57 +43,57 @@ isterminaleditor () {
 
 editconfig()
 {
-    if [[ ! -f ~/.carerra/config ]]; then
+    if [[ ! -f ~/.carrera/config ]]; then
         echo "Config does not exist; creating."
 
         makeconfig
         return
     fi
 
-    edit ~/.carerra/config
+    edit ~/.carrera/config
 }
 
 makeconfig()
 {
-    if [[ -f ~/.carerra/config ]]; then
+    if [[ -f ~/.carrera/config ]]; then
         echo "Config already exists."
         quit
     fi
 
-    if [[ ! -d ~/.carerra ]]; then
-      mkdir ~/.carerra
+    if [[ ! -d ~/.carrera ]]; then
+      mkdir ~/.carrera
     fi
 
     echo '#!/usr/bin/env bash
 PROJECTPATH="."
 MESSAGE="Initial commit."
 DEVELOP=false
-CODEEDITOR=""' > ~/.carerra/config
+CODEEDITOR=""' > ~/.carrera/config
 
-    edit ~/.carerra/config
+    edit ~/.carrera/config
 }
 
 editafter()
 {
-    if [[ ! -f ~/.carerra/after ]]; then
+    if [[ ! -f ~/.carrera/after ]]; then
         echo "after file does not exist; creating."
 
         makeafter
         return
     fi
 
-    edit ~/.carerra/after
+    edit ~/.carrera/after
 }
 
 makeafter()
 {
-    if [[ -f ~/.carerra/after ]]; then
+    if [[ -f ~/.carrera/after ]]; then
         echo "after file already exists."
         quit
     fi
 
-    if [[ ! -d ~/.carerra ]]; then
-      mkdir ~/.carerra
+    if [[ ! -d ~/.carrera ]]; then
+      mkdir ~/.carrera
     fi
 
     echo '#!/usr/bin/env bash
@@ -102,20 +102,20 @@ makeafter()
 # Installing Composer Dependencies
 # "
 # composer require orm
-# To copy standard files to new carerra project place them in ~/.carerra/includes directory.
+# To copy standard files to new carrera project place them in ~/.carrera/includes directory.
 # echo "
 # Copying Include Files
 # "
-# cp -R ~/.carerra/includes/ $PROJECTPATH
+# cp -R ~/.carrera/includes/ $PROJECTPATH
 # To add a git commit after given modifications
 # echo "
 # Committing after modifications to Git
 # "
 # git add .
 # git commit -am "Initialize Composer dependencies and additional files."
-' > ~/.carerra/after
+' > ~/.carrera/after
 
-    edit ~/.carerra/after
+    edit ~/.carrera/after
 }
 
 edit()
@@ -161,8 +161,8 @@ DEVELOP=false
 CODEEDITOR=""
 
 # Load config if it exists
-if [[ -f ~/.carerra/config ]]; then
-    source ~/.carerra/config
+if [[ -f ~/.carrera/config ]]; then
+    source ~/.carrera/config
 fi
 
 # Check for project name argument; if none passed, show help
@@ -280,11 +280,11 @@ case $PROJECTPATH in
 esac
 
 ### Load after file if it exists
-if [[ -f ~/.carerra/after ]]; then
+if [[ -f ~/.carrera/after ]]; then
     echo "
 ${green}Running additional commands...${reset}
     "
-    source ~/.carerra/after
+    source ~/.carrera/after
 fi
 
 if [[ "$CODEEDITOR" != "" ]]; then
