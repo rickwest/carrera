@@ -12,27 +12,25 @@ TERMINAL_EDITORS=("vim" "vi" "nano" "pico" "ed" "emacs" "nvim")
 ## Init functions
 showhelp()
 {
-    echo " "
-    echo "${green}Carrera: Turbo-charged '${orange}symfony new${green}'"
-    echo "${reset}________________________________________________________"
+    echo "${green}Carrera${reset}"
+    echo "Turbo-charged 'symfony new'! Rapid application creation for new Symfony projects."
     echo " "
     echo "${orange}Usage:"
-    echo "${reset}  carrera myApplication [arguments]"
+    echo "${reset}  carrera [project name] [arguments]"
     echo " "
-    echo "${orange}Commands (carrera COMMANDNAME):"
+    echo "${orange}Options:"
+    echo "${green}  -h, --help${reset}                  Show brief help"
+    echo "${green}  -e, --editor EDITOR${reset}         Specify an editor to run '${green}EDITOR .${reset}' with after"
+    echo "${green}  -m, --message \"message\"${reset}     Customize the initial commit message"
+    echo "${green}  -p, --path PATH${reset}             Customize the path in which the new project will be created"
+    echo "${green}  -d, --dev${reset}                   Create a new project based on the development version of Symfony's master branch"
     echo " "
-    echo "${green}   make-config${reset}                  Generate config file"
-    echo "${green}   edit-config${reset}                  Edit config file"
+    echo "${orange}Available commands:"
+    echo "${green}  config:make${reset}                 Generate a config file"
+    echo "${green}  config:edit${reset}                 Edit existing config file"
     echo " "
-    echo "${green}   make-after${reset}                   Generate after file"
-    echo "${green}   edit-after${reset}                   Edit after file"
-    echo " "
-    echo "${orange}Options (carrera myApplication OPTIONS):"
-    echo "${green}  -h, --help${reset}                    Show brief help"
-    echo "${green}  -e, --editor EDITOR${reset}           Specify an editor to run '${green}EDITOR .${reset}' with after"
-    echo "${green}  -m, --message \"message\"${reset}       Customize the initial commit message"
-    echo "${green}  -p, --path PATH${reset}               Customize the path in which the new project will be created"
-    echo "${green}  -d, --dev${reset}                     Create a new project based on the development version of Symfony's master branch"
+    echo "${green}  after:make${reset}                  Generate an after file"
+    echo "${green}  after:edit${reset}                  Edit existing after file"
     quit
 }
 
@@ -66,7 +64,7 @@ makeconfig()
 
     echo '#!/usr/bin/env bash
 PROJECTPATH="."
-MESSAGE="Initial commit."
+MESSAGE="Initial commit"
 DEVELOP=false
 CODEEDITOR=""' > ~/.carrera/config
 
@@ -171,23 +169,23 @@ if [[ $# -eq 0 ]]; then
 fi
 
 # Check if user wants to set up a config file.
-if [[ $1 == "make-config" ]]; then
+if [[ $1 == "config:make" ]]; then
     makeconfig
     quit
 fi
 
-if [[ $1 == "edit-config" ]]; then
+if [[ $1 == "config:edit" ]]; then
     editconfig
     quit
 fi
 
 # Check if user wants to set up a after file.
-if [[ $1 == "make-after" ]]; then
+if [[ $1 == "after:make" ]]; then
     makeafter
     quit
 fi
 
-if [[ $1 == "edit-after" ]]; then
+if [[ $1 == "after:edit" ]]; then
     editafter
     quit
 fi
@@ -246,9 +244,9 @@ fi
 cd "$PROJECTPATH" || exit
 
 echo "
-***********************************************
-3,2,1 … and we’re off! Creating new Symfony app ${green}$PROJECTNAME${reset}
-***********************************************
+**************************************************************************************************************
+3,2,1 … and we’re off! Creating your new Symfony app ${green}$PROJECTNAME${reset}. Go build something awesome!
+**************************************************************************************************************
 "
 
 if [[ "$DEVELOP" = true ]]; then
@@ -259,11 +257,11 @@ fi
 
 cd "$PROJECTNAME" || exit
 
-if [[ "$CODEEDITOR" != "" ]]; then
-    if ! isterminaleditor; then
-       $CODEEDITOR .
-   fi
-fi
+#if [[ "$CODEEDITOR" != "" ]]; then
+#    if ! isterminaleditor; then
+#       $CODEEDITOR .
+#   fi
+#fi
 
 git add .
 git commit -m "$MESSAGE"
@@ -292,20 +290,6 @@ if [[ "$CODEEDITOR" != "" ]]; then
        $CODEEDITOR .
    fi
 fi
-
-if [[ "$SHELL" != "" ]]; then
-    exec "$SHELL"
-
-    echo "
-***********************************************
-You're ready to go!
-"
-else
-    echo "
-***********************************************
-You're ready to go! Remember to cd into '${green}$prettyPath${reset}' before you start editing."
-fi
-
 
 # End script; disable error handling
 trap : 0
