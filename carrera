@@ -66,7 +66,9 @@ makeconfig()
 PROJECTPATH="."
 MESSAGE="Initial commit"
 DEVELOP=false
-CODEEDITOR=""' > ~/.carrera/config
+CODEEDITOR=""
+DB_URL=""
+DB_CREATE=false' > ~/.carrera/config
 
     edit ~/.carrera/config
 }
@@ -157,6 +159,8 @@ PROJECTPATH="."
 MESSAGE="Initial commit."
 DEVELOP=false
 CODEEDITOR=""
+DB_URL=""
+DB_CREATE=false
 
 # Load config if it exists
 if [[ -f ~/.carrera/config ]]; then
@@ -213,6 +217,13 @@ while [[ $# -gt 0 ]]; do
         -d|--develop|--dev)
             DEVELOP=true
             ;;
+        -db|--database)
+            DB_URL="$2"
+            shift
+            ;;
+        --dbcreate)
+            DB_CREATE=true
+            ;;
         *)
             ;;
     esac
@@ -231,21 +242,25 @@ if ! hash php 2>/dev/null; then
 fi
 
 if ! hash symfony 2>/dev/null; then
-  echo "${red}Symfony CLI not installed.${reset}"
-  echo " "
-  echo "For more information visit https://symfony.com/download."
+  echo "
+${red}Symfony CLI not installed.${reset}
+
+For more information visit https://symfony.com/download.
+  "
   if [[ "$(uname)" == "Darwin" ]]; then
-     echo " "
-     echo "To install it, run the command:"
-     echo " "
-     echo "${green}  curl -sS https://get.symfony.com/cli/installer | bash${reset}"
+    echo "
+To install it, run the command:
+
+${green}  curl -sS https://get.symfony.com/cli/installer | bash${reset}
+    "
   elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
-     echo " "
-     echo "To install it, run the command:"
-     echo " "
-     echo "${green}  wget https://get.symfony.com/cli/installer -O - | bash${reset}"
+    echo "
+To install it, run the command:
+
+${green}  wget https://get.symfony.com/cli/installer -O - | bash${reset}
+    "
   fi
-  echo " "
+
   quit
 fi
 
@@ -257,9 +272,9 @@ fi
 cd "$PROJECTPATH" || exit
 
 echo "
-**************************************************************************************************************
+****************************************************************************************************
 3,2,1 … and we’re off! Creating your new Symfony app ${green}$PROJECTNAME${reset}. Go build something awesome!
-**************************************************************************************************************
+****************************************************************************************************
 "
 
 if [[ "$DEVELOP" = true ]]; then
@@ -275,6 +290,25 @@ cd "$PROJECTNAME" || exit
 #       $CODEEDITOR .
 #   fi
 #fi
+
+cp .env .env.local
+
+if [[ "$DB_URL" != "" ]]; then
+    sed -i '' "s|mysql://db_user:db_password@127.0.0.1:3306/db_name|$DB_URL|" .env.local
+    if [[ "$DB_CREATE" = true ]]; then
+        echo "
+* Creating a database for the project
+  (running bin/console doctrine:database:create)
+        "
+        php bin/console doctrine:database:create
+    fi
+fi
+
+echo -e "\n.idea" >> .gitignore
+
+echo "
+* Adding the project files to Git and committing with message: ${green}$MESSAGE${reset}
+"
 
 git add .
 git commit -m "$MESSAGE"
