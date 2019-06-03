@@ -251,11 +251,9 @@ if ! hash php 2>/dev/null; then
 fi
 
 if ! hash symfony 2>/dev/null; then
-  echo "
-${red}Symfony CLI not installed.${reset}
+  echo "${red}Symfony CLI not installed.${reset}
 
-For more information visit https://symfony.com/download.
-  "
+For more information visit https://symfony.com/download."
   if [[ "$(uname)" == "Darwin" ]]; then
     echo "
 To install it, run the command:
