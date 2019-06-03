@@ -29,8 +29,9 @@ ${green}  -e, --editor EDITOR${reset}         Specify an editor to run '${green}
 ${green}  -m, --message \"message\"${reset}     Customize the initial commit message
 ${green}  -p, --path PATH${reset}             Customize the path in which the new project will be created
 ${green}  -d, --dev${reset}                   Create a new project based on the development version of Symfony's master branch
-${green}  -db, --database DB_URL${reset}      Specify the database url
+${green}  -db,--database DB_URL${reset}       Specify the database url
 ${green}  -c, --dbcreate${reset}              Create the database if a database url is provided
+${green}  -w, --webpack${reset}               Install Symfony Encore
 
 ${orange}Available commands:
 ${green}  config:make${reset}                 Generate a config file
@@ -77,7 +78,8 @@ MESSAGE="Initial commit"
 DEVELOP=false
 CODEEDITOR=""
 DB_URL=""
-DB_CREATE=false' > ~/.carrera/config
+DB_CREATE=false
+ENCORE=false' > ~/.carrera/config
 
     edit ~/.carrera/config
 }
@@ -170,6 +172,7 @@ DEVELOP=false
 CODEEDITOR=""
 DB_URL=""
 DB_CREATE=false
+ENCORE=false
 
 # Load config if it exists
 if [[ -f ~/.carrera/config ]]; then
@@ -232,6 +235,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -c|--dbcreate)
             DB_CREATE=true
+            ;;
+        -w|--webpack|--encore)
+            ENCORE=true
             ;;
         *)
             ;;
@@ -308,6 +314,21 @@ if [[ "$DB_URL" != "" ]]; then
   (running bin/console doctrine:database:create)
         "
         php bin/console doctrine:database:create
+    fi
+fi
+
+if [[ "$ENCORE" = true ]]; then
+    echo "
+* Installing Symfony Encore with Composer
+  (running composer require encore)
+    "
+    composer require encore
+
+    # check if yarn is executable, otherwise use npm
+    if hash yarn 2>/dev/null; then
+        yarn
+    else
+        npm install
     fi
 fi
 
