@@ -29,6 +29,8 @@ ${green}  -e, --editor EDITOR${reset}         Specify an editor to run '${green}
 ${green}  -m, --message \"message\"${reset}     Customize the initial commit message
 ${green}  -p, --path PATH${reset}             Customize the path in which the new project will be created
 ${green}  -d, --dev${reset}                   Create a new project based on the development version of Symfony's master branch
+${green}  -db, --database DB_URL${reset}      Specify the database url
+${green}  -c, --dbcreate${reset}              Create the database if a database url is provided
 
 ${orange}Available commands:
 ${green}  config:make${reset}                 Generate a config file
@@ -228,7 +230,7 @@ while [[ $# -gt 0 ]]; do
             DB_URL="$2"
             shift
             ;;
-        --dbcreate)
+        -c|--dbcreate)
             DB_CREATE=true
             ;;
         *)
