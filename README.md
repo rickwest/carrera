@@ -1,7 +1,7 @@
 # Carrera
 Turbo-charged `symfony new`! Rapid application creation for new Symfony projects.
 
-![Carrera](./porsche-racecar.jpg?raw=true)
+![Carrera](./carrera.jpg?raw=true)
 
 ## About
 Heavily inspired by Tighten's [Lambo](https://github.com/tightenco/lambo) and utilizing the [Symfony client](https://symfony.com/download), Carrera help's you get a new Symfony application up and running super fast. 
