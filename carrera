@@ -12,29 +12,39 @@ TERMINAL_EDITORS=("vim" "vi" "nano" "pico" "ed" "emacs" "nvim")
 ## Init functions
 showhelp()
 {
-    echo "${green}Carrera${reset}"
-    echo "Turbo-charged 'symfony new'! Rapid application creation for new Symfony projects."
-    echo " "
-    echo "${orange}Usage:"
-    echo "${reset}  carrera [project name] [arguments]"
-    echo " "
-    echo "${orange}Options:"
-    echo "${green}  -h, --help${reset}                  Show brief help"
-    echo "${green}  -e, --editor EDITOR${reset}         Specify an editor to run '${green}EDITOR .${reset}' with after"
-    echo "${green}  -m, --message \"message\"${reset}     Customize the initial commit message"
-    echo "${green}  -p, --path PATH${reset}             Customize the path in which the new project will be created"
-    echo "${green}  -d, --dev${reset}                   Create a new project based on the development version of Symfony's master branch"
-    echo " "
-    echo "${orange}Available commands:"
-    echo "${green}  config:make${reset}                 Generate a config file"
-    echo "${green}  config:edit${reset}                 Edit existing config file"
-    echo " "
-    echo "${green}  after:make${reset}                  Generate an after file"
-    echo "${green}  after:edit${reset}                  Edit existing after file"
+    echo "
+____________ ________________________________ _
+_  ___/  __ \`/_  ___/_  ___/  _ \_  ___/  __ \`/
+/ /__ / /_/ /_  /   _  /   /  __/  /   / /_/ /
+\___/ \__,_/ /_/    /_/    \___//_/    \__,_/
+
+Turbo-charged ${green}symfony new${reset}! Rapid application creation for new Symfony projects.
+
+${orange}Usage:
+${reset}  carrera [project name] [arguments]
+
+${orange}Options:
+${green}  -h, --help${reset}                  Show brief help
+${green}  -e, --editor EDITOR${reset}         Specify an editor to run '${green}EDITOR .${reset}' with after
+${green}  -m, --message \"message\"${reset}     Customize the initial commit message
+${green}  -p, --path PATH${reset}             Customize the path in which the new project will be created
+${green}  -d, --dev${reset}                   Create a new project based on the development version of Symfony's master branch
+${green}  -db,--database DB_URL${reset}       Specify the database url
+${green}  -c, --dbcreate${reset}              Create the database if a database url is provided
+${green}  -w, --webpack${reset}               Install Symfony Encore
+
+${orange}Available commands:
+${green}  config:make${reset}                 Generate a config file
+${green}  config:edit${reset}                 Edit existing config file
+
+${green}  after:make${reset}                  Generate an after file
+${green}  after:edit${reset}                  Edit existing after file
+    "
     quit
 }
 
-isterminaleditor () {
+isterminaleditor ()
+{
     for EDITOR in $TERMINAL_EDITORS; do [[ "$EDITOR" == "$CODEEDITOR" ]] && return 0; done
     return 1
 }
@@ -66,7 +76,10 @@ makeconfig()
 PROJECTPATH="."
 MESSAGE="Initial commit"
 DEVELOP=false
-CODEEDITOR=""' > ~/.carrera/config
+CODEEDITOR=""
+DB_URL=""
+DB_CREATE=false
+ENCORE=false' > ~/.carrera/config
 
     edit ~/.carrera/config
 }
@@ -157,6 +170,9 @@ PROJECTPATH="."
 MESSAGE="Initial commit."
 DEVELOP=false
 CODEEDITOR=""
+DB_URL=""
+DB_CREATE=false
+ENCORE=false
 
 # Load config if it exists
 if [[ -f ~/.carrera/config ]]; then
@@ -213,13 +229,22 @@ while [[ $# -gt 0 ]]; do
         -d|--develop|--dev)
             DEVELOP=true
             ;;
+        -db|--database)
+            DB_URL="$2"
+            shift
+            ;;
+        -c|--dbcreate)
+            DB_CREATE=true
+            ;;
+        -w|--webpack|--encore)
+            ENCORE=true
+            ;;
         *)
             ;;
     esac
 
     shift
 done
-
 
 if [ -d "$PROJECTPATH/$PROJECTNAME" ]; then
   echo "${red}Project directory $PROJECTPATH/$PROJECTNAME already exists.${reset}"
@@ -232,7 +257,23 @@ if ! hash php 2>/dev/null; then
 fi
 
 if ! hash symfony 2>/dev/null; then
-  echo "${red}Symfony cli not installed.${reset}"
+  echo "${red}Symfony CLI not installed.${reset}
+
+For more information visit https://symfony.com/download."
+  if [[ "$(uname)" == "Darwin" ]]; then
+    echo "
+To install it, run the command:
+
+${green}  curl -sS https://get.symfony.com/cli/installer | bash${reset}
+    "
+  elif [[ "$(expr substr $(uname -s) 1 5)" == "Linux" ]]; then
+    echo "
+To install it, run the command:
+
+${green}  wget https://get.symfony.com/cli/installer -O - | bash${reset}
+    "
+  fi
+
   quit
 fi
 
@@ -244,9 +285,9 @@ fi
 cd "$PROJECTPATH" || exit
 
 echo "
-**************************************************************************************************************
+****************************************************************************************************
 3,2,1 … and we’re off! Creating your new Symfony app ${green}$PROJECTNAME${reset}. Go build something awesome!
-**************************************************************************************************************
+****************************************************************************************************
 "
 
 if [[ "$DEVELOP" = true ]]; then
@@ -262,6 +303,40 @@ cd "$PROJECTNAME" || exit
 #       $CODEEDITOR .
 #   fi
 #fi
+
+cp .env .env.local
+
+if [[ "$DB_URL" != "" ]]; then
+    sed -i '' "s|mysql://db_user:db_password@127.0.0.1:3306/db_name|$DB_URL|" .env.local
+    if [[ "$DB_CREATE" = true ]]; then
+        echo "
+* Creating a database for the project
+  (running bin/console doctrine:database:create)
+        "
+        php bin/console doctrine:database:create
+    fi
+fi
+
+if [[ "$ENCORE" = true ]]; then
+    echo "
+* Installing Symfony Encore with Composer
+  (running composer require encore)
+    "
+    composer require encore
+
+    # check if yarn is executable, otherwise use npm
+    if hash yarn 2>/dev/null; then
+        yarn
+    else
+        npm install
+    fi
+fi
+
+echo -e "\n.idea" >> .gitignore
+
+echo "
+* Adding the project files to Git and committing with message: ${green}$MESSAGE${reset}
+"
 
 git add .
 git commit -m "$MESSAGE"
