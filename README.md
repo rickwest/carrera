@@ -28,19 +28,21 @@ composer global update rickwest/carrera
 
 ## Usage
 
+Make sure `~/.config/composer/vendor/bin` is in your terminal's path.
+
 ```bash
 carrera [project name]
 ```
 
 This will `symfony new [project name]`, change into that directory, make an initial Git commit, start a web server and open the project in a web browser.
 
-### What exactly does Carrera do?
+## What exactly does Carrera do?
 
 - `symfony new $PROJECTNAME`
 - `cd $PROJECTNAME`
 - Initialize a git repo, add all of the files, and make an "Initial commit"
 - Starts the [Symfony Local Web Server](https://symfony.com/doc/current/setup/symfony_server.html)
-- Open's your project in the browser
+- Open's your project in a browser
 
 ---
 
